@@ -1,7 +1,5 @@
 # AI Career Agent
 
-![AI Career Agent](./frontend/public/ai-career-agent-logo.png)
-
 ## UiPath AgentHack 2026
 
 **Track:** UiPath Maestro Case
