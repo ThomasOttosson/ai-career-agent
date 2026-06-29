@@ -4,7 +4,9 @@ import backend.dto.UserProfileRequest;
 import backend.model.UserAccount;
 import backend.model.UserProfile;
 import backend.repository.UserProfileRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserProfileService {
@@ -56,7 +58,10 @@ public class UserProfileService {
         UserProfile profile = getProfile(userId);
 
         if (profile == null) {
-            throw new RuntimeException("User profile not found");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Please complete and save your profile before using this AI feature."
+            );
         }
 
         return profile;

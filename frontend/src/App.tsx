@@ -5,6 +5,7 @@ import { useJobMatches } from "./hooks/useJobMatches";
 import { useApplicationCases } from "./hooks/useApplicationCases";
 import { useJobs } from "./hooks/useJobs";
 import { useAuth } from "./hooks/useAuth";
+import { useProfile } from "./hooks/useProfile";
 import "./App.css";
 import AuthBar from "./components/AuthBar";
 import AuthModal from "./components/AuthModal";
@@ -23,6 +24,7 @@ import type { JobPosting } from "./api/jobApi";
 function App() {
   const auth = useAuth();
   const location = useLocation();
+  const { profile } = useProfile();
   const [authMode, setAuthMode] = useState<"login" | "register" | null>(null);
 
   useEffect(() => {
@@ -53,9 +55,7 @@ function App() {
 
   const [coverLetterTone, setCoverLetterTone] = useState("Professional");
 
-  const userId = auth.user?.userId;
-
-  const { jobs, createJobMutation } = useJobs(userId);
+  const { jobs, createJobMutation } = useJobs();
 
   const {
     applicationCases,
@@ -69,9 +69,9 @@ function App() {
     rejectedCaseMutation,
     deleteCaseMutation,
     updateCaseMutation,
-  } = useApplicationCases(userId);
+  } = useApplicationCases();
 
-  const { matchResults, analyzeMutation, deleteMatchResult } = useJobMatches(userId);
+  const { matchResults, analyzeMutation, deleteMatchResult } = useJobMatches();
 
   const {
     coverLetters,
@@ -87,7 +87,9 @@ function App() {
     createManualLetter,
     updateManualLetter,
     removeManualLetter,
-  } = useCoverLetters(jobs, userId);
+  } = useCoverLetters(jobs);
+
+  const hasSavedProfile = Boolean(profile);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -300,6 +302,7 @@ function App() {
                 editedLetters={editedLetters}
                 coverLetterTone={coverLetterTone}
                 canUseApp={auth.isLoggedIn}
+                hasSavedProfile={hasSavedProfile}
                 isAnalyzing={analyzeMutation.isPending}
                 isGenerating={generateMutation.isPending}
                 isSaving={updateMutation.isPending}

@@ -11,6 +11,7 @@ interface JobsPageProps {
   editedLetters: Record<string, string>;
   coverLetterTone: string;
   canUseApp: boolean;
+  hasSavedProfile: boolean;
   isAnalyzing: boolean;
   isGenerating: boolean;
   isSaving: boolean;
@@ -36,6 +37,7 @@ function JobsPage({
   editedLetters,
   coverLetterTone,
   canUseApp,
+  hasSavedProfile,
   isAnalyzing,
   isGenerating,
   isSaving,
@@ -127,6 +129,26 @@ function JobsPage({
           {jobs.length} {jobs.length === 1 ? "job" : "jobs"}
         </strong>
       </div>
+
+      {canUseApp && !hasSavedProfile && (
+        <div
+          style={{
+            border: "1px solid #f5c542",
+            background: "#fff8db",
+            color: "#5f4b00",
+            padding: "14px",
+            borderRadius: "12px",
+            marginBottom: "16px",
+          }}
+        >
+          <strong>Complete your profile first</strong>
+
+          <p style={{ margin: "8px 0 0" }}>
+            Before using AI Match or generating cover letters, go to{" "}
+            <strong>Settings</strong> and save your profile.
+          </p>
+        </div>
+      )}
 
       {jobs.length === 0 && (
         <div
@@ -335,7 +357,7 @@ function JobsPage({
                           <button
                             type="button"
                             className="primary-button"
-                            disabled={!canUseApp || isAnalyzing}
+                            disabled={!canUseApp || !hasSavedProfile || isAnalyzing}
                             onClick={() => onAnalyze(job.id!)}
                           >
                             {isAnalyzing ? "Analyzing..." : "Analyze match"}
@@ -344,7 +366,7 @@ function JobsPage({
                           <button
                             type="button"
                             className="primary-button"
-                            disabled={!canUseApp || isGenerating}
+                            disabled={!canUseApp || !hasSavedProfile || isGenerating}
                             onClick={() =>
                               onGenerateCoverLetter(job.id!, coverLetterTone)
                             }
