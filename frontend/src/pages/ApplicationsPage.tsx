@@ -59,12 +59,22 @@ function ApplicationsPage({
             borderRadius: "12px",
             padding: "16px",
             background: "#fff",
+            textAlign: "center",
           }}
         >
           <p>No application cases yet.</p>
 
-          <Link to="/jobs">
-            <button type="button">Go to Jobs</button>
+          <Link
+            to="/jobs"
+            className="primary-button"
+            style={{
+              display: "inline-block",
+              textDecoration: "none",
+              marginTop: "8px",
+              minWidth: "160px",
+            }}
+          >
+            Go to Jobs
           </Link>
         </div>
       </section>
