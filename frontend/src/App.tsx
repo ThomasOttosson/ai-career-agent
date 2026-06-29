@@ -24,7 +24,8 @@ import type { JobPosting } from "./api/jobApi";
 function App() {
   const auth = useAuth();
   const location = useLocation();
-  const { profile } = useProfile();
+  const currentUserId = auth.user?.userId;
+  const { profile } = useProfile(currentUserId);
   const [authMode, setAuthMode] = useState<"login" | "register" | null>(null);
 
   useEffect(() => {
@@ -55,7 +56,7 @@ function App() {
 
   const [coverLetterTone, setCoverLetterTone] = useState("Professional");
 
-  const { jobs, createJobMutation } = useJobs();
+  const { jobs, createJobMutation } = useJobs(currentUserId);
 
   const {
     applicationCases,
@@ -69,9 +70,9 @@ function App() {
     rejectedCaseMutation,
     deleteCaseMutation,
     updateCaseMutation,
-  } = useApplicationCases();
+  } = useApplicationCases(currentUserId);
 
-  const { matchResults, analyzeMutation, deleteMatchResult } = useJobMatches();
+  const { matchResults, analyzeMutation, deleteMatchResult } = useJobMatches(currentUserId);
 
   const {
     coverLetters,
@@ -87,7 +88,7 @@ function App() {
     createManualLetter,
     updateManualLetter,
     removeManualLetter,
-  } = useCoverLetters(jobs);
+  } = useCoverLetters(jobs, currentUserId);
 
   const hasSavedProfile = Boolean(profile);
 
@@ -482,6 +483,7 @@ function App() {
               <SettingsPage
                 isLoggedIn={auth.isLoggedIn}
                 userEmail={auth.user?.email}
+                userId={currentUserId}
               />
             }
           />

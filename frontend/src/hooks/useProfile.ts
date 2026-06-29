@@ -2,8 +2,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { getCurrentUserId } from "../api/apiClient";
 import { getProfile, saveProfile, type UserProfile } from "../api/profileApi";
 
-export function useProfile() {
-  const userId = getCurrentUserId();
+export function useProfile(activeUserId?: string) {
+  const userId = activeUserId ?? getCurrentUserId();
 
   const {
     data: profile,

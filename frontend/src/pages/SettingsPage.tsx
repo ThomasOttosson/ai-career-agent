@@ -5,10 +5,11 @@ import { useProfile } from "../hooks/useProfile";
 interface SettingsPageProps {
   isLoggedIn: boolean;
   userEmail?: string;
+  userId?: string;
 }
 
-function SettingsPage({ isLoggedIn, userEmail }: SettingsPageProps) {
-  const { profile, isLoading, saveProfileMutation } = useProfile();
+function SettingsPage({ isLoggedIn, userEmail, userId }: SettingsPageProps) {
+  const { profile, isLoading, saveProfileMutation } = useProfile(userId);
   const profileSaved = saveProfileMutation.isSuccess;
   const [showProfileSaved, setShowProfileSaved] = useState(false);
 

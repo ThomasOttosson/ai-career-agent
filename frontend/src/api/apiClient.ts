@@ -8,8 +8,19 @@ export function getCurrentUserId(): string | null {
   if (!savedUser) return null;
 
   try {
-    const parsed = JSON.parse(savedUser) as { userId?: string };
-    return parsed.userId ?? null;
+    const parsed = JSON.parse(savedUser) as {
+      userId?: string;
+      id?: string;
+      user?: { userId?: string; id?: string };
+    };
+
+    return (
+      parsed.userId ??
+      parsed.id ??
+      parsed.user?.userId ??
+      parsed.user?.id ??
+      null
+    );
   } catch {
     return null;
   }
