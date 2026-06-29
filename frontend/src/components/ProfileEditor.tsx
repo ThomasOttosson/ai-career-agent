@@ -28,11 +28,14 @@ function ProfileEditor({ profile, isSaving, onSave }: ProfileEditorProps) {
   useEffect(() => {
     if (!profile) return;
 
-    const isSavedOtherExperience = profile.experienceLevel.startsWith("Other - ");
+    const isSavedOtherExperience =
+      profile.experienceLevel.startsWith("Other - ");
 
     setForm({
       ...profile,
-      experienceLevel: isSavedOtherExperience ? "Other" : profile.experienceLevel,
+      experienceLevel: isSavedOtherExperience
+        ? "Other"
+        : profile.experienceLevel,
       desiredSalary: String(profile.desiredSalary ?? ""),
     });
 
@@ -116,7 +119,10 @@ function ProfileEditor({ profile, isSaving, onSave }: ProfileEditorProps) {
         </p>
       </div>
 
-      <form className="profile-form compact-profile-form" onSubmit={handleSubmit}>
+      <form
+        className="profile-form compact-profile-form"
+        onSubmit={handleSubmit}
+      >
         <label className="profile-field">
           Full name
           <input

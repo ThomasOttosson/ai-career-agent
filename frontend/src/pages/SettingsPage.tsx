@@ -70,7 +70,7 @@ function SettingsPage({ isLoggedIn, userEmail }: SettingsPageProps) {
 
       {isLoggedIn && (
         <ProfileEditor
-          profile={profile}
+          profile={profile ?? undefined}
           isSaving={saveProfileMutation.isPending || isLoading}
           onSave={(profileData) => saveProfileMutation.mutate(profileData)}
         />
