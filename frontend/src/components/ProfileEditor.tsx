@@ -28,24 +28,30 @@ function ProfileEditor({ profile, isSaving, onSave }: ProfileEditorProps) {
   useEffect(() => {
     if (!profile) return;
 
+    const savedExperienceLevel = profile.experienceLevel ?? "";
     const isSavedOtherExperience =
-      profile.experienceLevel.startsWith("Other - ");
+      savedExperienceLevel.startsWith("Other - ");
 
     setForm({
       ...profile,
+      fullName: profile.fullName ?? "",
+      currentTitle: profile.currentTitle ?? "",
       experienceLevel: isSavedOtherExperience
         ? "Other"
-        : profile.experienceLevel,
+        : savedExperienceLevel || "Junior",
+      skills: profile.skills ?? [],
+      preferredRole: profile.preferredRole ?? "",
+      workMode: profile.workMode ?? "Remote",
       desiredSalary: String(profile.desiredSalary ?? ""),
     });
 
     setOtherExperienceInfo(
       isSavedOtherExperience
-        ? profile.experienceLevel.replace("Other - ", "")
+        ? savedExperienceLevel.replace("Other - ", "")
         : "",
     );
 
-    setSkillsText(profile.skills.join(", "));
+    setSkillsText((profile.skills ?? []).join(", "));
   }, [profile]);
 
   const handleChange = (
