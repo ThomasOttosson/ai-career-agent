@@ -1,6 +1,7 @@
 package backend.service;
 
 import backend.dto.UserProfileRequest;
+import backend.model.UserAccount;
 import backend.model.UserProfile;
 import backend.repository.UserProfileRepository;
 import org.springframework.stereotype.Service;
@@ -9,17 +10,32 @@ import org.springframework.stereotype.Service;
 public class UserProfileService {
 
     private final UserProfileRepository userProfileRepository;
+    private final UserAccountService userAccountService;
 
-    public UserProfileService(UserProfileRepository userProfileRepository) {
+    public UserProfileService(
+            UserProfileRepository userProfileRepository,
+            UserAccountService userAccountService
+    ) {
         this.userProfileRepository = userProfileRepository;
+        this.userAccountService = userAccountService;
     }
 
     public UserProfile saveProfile(String userId, UserProfileRequest request) {
-        UserProfile profile = userProfileRepository.findByUserId(userId)
-                .orElse(new UserProfile());
+        UserAccount user = userAccountService.requireUser(userId);
 
-        profile.setId(userId);
-        profile.setUserId(userId);
+        UserProfile profile = userProfileRepository.findByUser(user)
+                .orElseGet(() -> new UserProfile(
+                        user,
+                        request.fullName(),
+                        request.currentTitle(),
+                        request.experienceLevel(),
+                        request.skills(),
+                        request.preferredRole(),
+                        request.workMode(),
+                        request.desiredSalary()
+                ));
+
+        profile.setUser(user);
         profile.setFullName(request.fullName());
         profile.setCurrentTitle(request.currentTitle());
         profile.setExperienceLevel(request.experienceLevel());
@@ -32,7 +48,8 @@ public class UserProfileService {
     }
 
     public UserProfile getProfile(String userId) {
-        return userProfileRepository.findByUserId(userId).orElse(null);
+        UserAccount user = userAccountService.requireUser(userId);
+        return userProfileRepository.findByUser(user).orElse(null);
     }
 
     public UserProfile requireProfile(String userId) {

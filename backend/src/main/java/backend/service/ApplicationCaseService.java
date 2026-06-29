@@ -3,6 +3,8 @@ package backend.service;
 import backend.dto.ApplicationCaseUpdateRequest;
 import backend.model.ApplicationCase;
 import backend.model.ApplicationStatus;
+import backend.model.JobPosting;
+import backend.model.UserAccount;
 import backend.repository.ApplicationCaseRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,24 +16,29 @@ public class ApplicationCaseService {
 
     private final ApplicationCaseRepository applicationCaseRepository;
     private final JobPostingService jobPostingService;
+    private final UserAccountService userAccountService;
 
     public ApplicationCaseService(
             ApplicationCaseRepository applicationCaseRepository,
-            JobPostingService jobPostingService
+            JobPostingService jobPostingService,
+            UserAccountService userAccountService
     ) {
         this.applicationCaseRepository = applicationCaseRepository;
         this.jobPostingService = jobPostingService;
+        this.userAccountService = userAccountService;
     }
 
     public ApplicationCase createCase(String userId, String jobId) {
-        jobPostingService.getJobById(userId, jobId);
+        UserAccount user = userAccountService.requireUser(userId);
+        JobPosting job = jobPostingService.getJobById(user, jobId);
 
-        ApplicationCase applicationCase = new ApplicationCase(userId, jobId);
+        ApplicationCase applicationCase = new ApplicationCase(user, job);
         return applicationCaseRepository.save(applicationCase);
     }
 
     public List<ApplicationCase> getCases(String userId) {
-        return applicationCaseRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
+        UserAccount user = userAccountService.requireUser(userId);
+        return applicationCaseRepository.findAllByUserOrderByCreatedAtDesc(user);
     }
 
     public ApplicationCase approveCase(String userId, String caseId) {
@@ -101,7 +108,8 @@ public class ApplicationCaseService {
     }
 
     private ApplicationCase findCase(String userId, String caseId) {
-        return applicationCaseRepository.findByIdAndUserId(caseId, userId)
+        UserAccount user = userAccountService.requireUser(userId);
+        return applicationCaseRepository.findByIdAndUser(caseId, user)
                 .orElseThrow(() -> new RuntimeException("Application case not found"));
     }
 }

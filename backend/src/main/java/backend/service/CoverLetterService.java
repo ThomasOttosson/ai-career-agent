@@ -2,6 +2,7 @@ package backend.service;
 
 import backend.model.CoverLetter;
 import backend.model.JobPosting;
+import backend.model.UserAccount;
 import backend.model.UserProfile;
 import backend.repository.CoverLetterRepository;
 import org.springframework.stereotype.Service;
@@ -13,24 +14,28 @@ public class CoverLetterService {
 
     private final UserProfileService userProfileService;
     private final JobPostingService jobPostingService;
+    private final UserAccountService userAccountService;
     private final CoverLetterRepository coverLetterRepository;
     private final OpenAiService openAiService;
 
     public CoverLetterService(
             UserProfileService userProfileService,
             JobPostingService jobPostingService,
+            UserAccountService userAccountService,
             CoverLetterRepository coverLetterRepository,
             OpenAiService openAiService
     ) {
         this.userProfileService = userProfileService;
         this.jobPostingService = jobPostingService;
+        this.userAccountService = userAccountService;
         this.coverLetterRepository = coverLetterRepository;
         this.openAiService = openAiService;
     }
 
     public CoverLetter generate(String userId, String jobId, String tone) {
-        UserProfile user = userProfileService.requireProfile(userId);
-        JobPosting job = jobPostingService.getJobById(userId, jobId);
+        UserAccount currentUser = userAccountService.requireUser(userId);
+        UserProfile profile = userProfileService.requireProfile(userId);
+        JobPosting job = jobPostingService.getJobById(currentUser, jobId);
 
         String prompt = """
                 Write a professional, concise cover letter.
@@ -60,12 +65,12 @@ public class CoverLetterService {
                 - End with a professional sign-off
                 """.formatted(
                 tone,
-                user.getFullName(),
-                user.getCurrentTitle(),
-                user.getExperienceLevel(),
-                String.join(", ", user.getSkills()),
-                user.getPreferredRole(),
-                user.getWorkMode(),
+                profile.getFullName(),
+                profile.getCurrentTitle(),
+                profile.getExperienceLevel(),
+                String.join(", ", profile.getSkills()),
+                profile.getPreferredRole(),
+                profile.getWorkMode(),
                 job.getTitle(),
                 job.getCompany(),
                 job.getLocation(),
@@ -75,7 +80,7 @@ public class CoverLetterService {
 
         String letter = openAiService.generateText(prompt);
 
-        CoverLetter coverLetter = new CoverLetter(userId, jobId, letter);
+        CoverLetter coverLetter = new CoverLetter(currentUser, job, letter);
         coverLetter.setTitle(job.getTitle());
         coverLetter.setCompany(job.getCompany());
 
@@ -83,11 +88,13 @@ public class CoverLetterService {
     }
 
     public List<CoverLetter> getAll(String userId) {
-        return coverLetterRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
+        UserAccount user = userAccountService.requireUser(userId);
+        return coverLetterRepository.findAllByUserOrderByCreatedAtDesc(user);
     }
 
     public CoverLetter createManual(String userId, String title, String company, String content) {
-        CoverLetter coverLetter = new CoverLetter(userId, title, company, content);
+        UserAccount user = userAccountService.requireUser(userId);
+        CoverLetter coverLetter = new CoverLetter(user, title, company, content);
         return coverLetterRepository.save(coverLetter);
     }
 
@@ -98,7 +105,8 @@ public class CoverLetterService {
             String company,
             String content
     ) {
-        CoverLetter coverLetter = coverLetterRepository.findByIdAndUserId(coverLetterId, userId)
+        UserAccount user = userAccountService.requireUser(userId);
+        CoverLetter coverLetter = coverLetterRepository.findByIdAndUser(coverLetterId, user)
                 .orElseThrow(() -> new RuntimeException("Cover letter not found"));
 
         coverLetter.setTitle(title);
@@ -109,13 +117,15 @@ public class CoverLetterService {
     }
 
     public CoverLetter getLatestForJob(String userId, String jobId) {
-        jobPostingService.getJobById(userId, jobId);
-        return coverLetterRepository.findTopByJobIdAndUserIdOrderByCreatedAtDesc(jobId, userId)
+        UserAccount user = userAccountService.requireUser(userId);
+        JobPosting job = jobPostingService.getJobById(user, jobId);
+        return coverLetterRepository.findTopByJobAndUserOrderByCreatedAtDesc(job, user)
                 .orElse(null);
     }
 
     public void delete(String userId, String coverLetterId) {
-        CoverLetter coverLetter = coverLetterRepository.findByIdAndUserId(coverLetterId, userId)
+        UserAccount user = userAccountService.requireUser(userId);
+        CoverLetter coverLetter = coverLetterRepository.findByIdAndUser(coverLetterId, user)
                 .orElseThrow(() -> new RuntimeException("Cover letter not found"));
         coverLetterRepository.delete(coverLetter);
     }

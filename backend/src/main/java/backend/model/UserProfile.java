@@ -1,12 +1,16 @@
 package backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 public class UserProfile {
@@ -14,7 +18,11 @@ public class UserProfile {
     @Id
     private String id;
 
-    private String userId;
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private UserAccount user;
+
     private String fullName;
     private String currentTitle;
     private String experienceLevel;
@@ -30,7 +38,7 @@ public class UserProfile {
     }
 
     public UserProfile(
-            String userId,
+            UserAccount user,
             String fullName,
             String currentTitle,
             String experienceLevel,
@@ -39,8 +47,8 @@ public class UserProfile {
             String workMode,
             String desiredSalary
     ) {
-        this.id = userId;
-        this.userId = userId;
+        this.id = UUID.randomUUID().toString();
+        this.user = user;
         this.fullName = fullName;
         this.currentTitle = currentTitle;
         this.experienceLevel = experienceLevel;
@@ -58,12 +66,16 @@ public class UserProfile {
         this.id = id;
     }
 
-    public String getUserId() {
-        return userId;
+    public UserAccount getUser() {
+        return user;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUser(UserAccount user) {
+        this.user = user;
+    }
+
+    public String getUserId() {
+        return user != null ? user.getId() : null;
     }
 
     public String getFullName() {

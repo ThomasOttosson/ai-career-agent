@@ -1,9 +1,13 @@
 package backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,8 +19,15 @@ public class ApplicationCase {
     @Id
     private String id;
 
-    private String userId;
-    private String jobId;
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserAccount user;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "job_id", nullable = false)
+    private JobPosting job;
 
     @Enumerated(EnumType.STRING)
     private ApplicationStatus status;
@@ -34,17 +45,19 @@ public class ApplicationCase {
     public ApplicationCase() {
     }
 
-    public ApplicationCase(String userId, String jobId) {
+    public ApplicationCase(UserAccount user, JobPosting job) {
         this.id = UUID.randomUUID().toString();
-        this.userId = userId;
-        this.jobId = jobId;
+        this.user = user;
+        this.job = job;
         this.status = ApplicationStatus.NEW;
         this.createdAt = LocalDateTime.now();
     }
 
     public String getId() { return id; }
-    public String getUserId() { return userId; }
-    public String getJobId() { return jobId; }
+    public UserAccount getUser() { return user; }
+    public String getUserId() { return user != null ? user.getId() : null; }
+    public JobPosting getJob() { return job; }
+    public String getJobId() { return job != null ? job.getId() : null; }
     public ApplicationStatus getStatus() { return status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getApprovedAt() { return approvedAt; }
@@ -56,7 +69,9 @@ public class ApplicationCase {
     public String getNotes() { return notes; }
     public LocalDate getFollowUpDate() { return followUpDate; }
 
-    public void setUserId(String userId) { this.userId = userId; }
+    public void setId(String id) { this.id = id; }
+    public void setUser(UserAccount user) { this.user = user; }
+    public void setJob(JobPosting job) { this.job = job; }
     public void setStatus(ApplicationStatus status) { this.status = status; }
     public void setApprovedAt(LocalDateTime approvedAt) { this.approvedAt = approvedAt; }
     public void setAppliedAt(LocalDateTime appliedAt) { this.appliedAt = appliedAt; }
