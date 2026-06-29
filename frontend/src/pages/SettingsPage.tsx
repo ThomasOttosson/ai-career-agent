@@ -8,29 +8,33 @@ interface SettingsPageProps {
   userId?: string;
 }
 
+function hasText(value?: string | null) {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
 function SettingsPage({ isLoggedIn, userEmail, userId }: SettingsPageProps) {
   const { profile, isLoading, saveProfileMutation } = useProfile(userId);
   const profileSaved = saveProfileMutation.isSuccess;
   const [showProfileSaved, setShowProfileSaved] = useState(false);
 
-  const profileFields = profile
+  const profileChecks = profile
     ? [
-        profile.fullName,
-        profile.currentTitle,
-        profile.experienceLevel,
-        profile.preferredRole,
-        profile.workMode,
-        profile.desiredSalary?.trim() ?? "",
-        profile.skills.length > 0 ? profile.skills.join(",") : "",
+        hasText(profile.fullName),
+        hasText(profile.currentTitle),
+        hasText(profile.experienceLevel),
+        hasText(profile.preferredRole),
+        hasText(profile.workMode),
+        hasText(profile.desiredSalary),
+        Array.isArray(profile.skills) &&
+          profile.skills.some((skill) => hasText(skill)),
       ]
     : [];
 
-  const completedFields = profileFields.filter(Boolean).length;
+  const completedFields = profileChecks.filter(Boolean).length;
+  const totalFields = profileChecks.length;
 
   const profileCompleteness =
-    profileFields.length > 0
-      ? Math.round((completedFields / profileFields.length) * 100)
-      : 0;
+    totalFields > 0 ? Math.round((completedFields / totalFields) * 100) : 0;
 
   useEffect(() => {
     if (!profileSaved) return;
