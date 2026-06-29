@@ -207,7 +207,7 @@ function ResumeBuilderPage() {
                   onChange={(event) =>
                     updateField("fullName", event.target.value)
                   }
-                  placeholder="e.g. John Doe"
+                  placeholder="E.g. John Doe"
                 />
               </label>
 
@@ -216,7 +216,7 @@ function ResumeBuilderPage() {
                 <input
                   value={resume.title}
                   onChange={(event) => updateField("title", event.target.value)}
-                  placeholder="e.g. Frontend Developer"
+                  placeholder="E.g. Frontend Developer"
                 />
               </label>
 
@@ -225,7 +225,7 @@ function ResumeBuilderPage() {
                 <input
                   value={resume.email}
                   onChange={(event) => updateField("email", event.target.value)}
-                  placeholder="name@email.com"
+                  placeholder="E.g. name@email.com"
                 />
               </label>
 
@@ -236,7 +236,7 @@ function ResumeBuilderPage() {
                   onChange={(event) =>
                     updateField("location", event.target.value)
                   }
-                  placeholder="e.g. London, England"
+                  placeholder="E.g. London, England"
                 />
               </label>
             </div>
